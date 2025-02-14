@@ -1,4 +1,5 @@
 import logging
+
 from datetime import timedelta, datetime
 
 
@@ -18,11 +19,14 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
+logger = logging.getLogger(__name__)
+
+
 def authenticate_user(session: Session, username: str, password: str) -> User:
     user = session.execute(select(User).where(User.username == username)).scalar_one_or_none()
-    logging.info(f"User: {user}")
+    logger.info(f"User: {user}")
     if not user or not pwd_context.verify(password, user.hashed_password):
-        return None
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid username or password")
     return user
 
 

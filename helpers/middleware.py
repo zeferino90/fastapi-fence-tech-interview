@@ -1,4 +1,5 @@
 import logging
+
 from datetime import datetime
 
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -8,7 +9,6 @@ from starlette.responses import Response
 from database.db_session import get_db
 from database.models import AuditLog
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
@@ -41,8 +41,8 @@ class AuditLogMiddleware(BaseHTTPMiddleware):
         session.commit()
 
         # Log request and response
-        logger.info(f"Request - Method: {method}, Path: {path}, Body: {request_body_text}")
-        logger.info(f"Response - Status: {response.status_code}, Body: {response_body_text}")
+        logger.debug(f"Request - Method: {method}, Path: {path}, Body: {request_body_text}")
+        logger.debug(f"Response - Status: {response.status_code}, Body: {response_body_text}")
 
         # Return the response with the captured body
         return Response(content=response_body, status_code=response.status_code, headers=dict(response.headers),
