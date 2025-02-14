@@ -7,3 +7,9 @@ sqlalchemy == 2.0.38
 sqlmodel == 0.0.22
 psycopg2-binary == 2.9.3
 aiosqlite == 0.21.0
+
+starlette~=0.35.1
+passlib~=1.7.4
+pydantic~=1.10.21
+python-multipart == 0.0.19
+pyjwt == 2.3.0
