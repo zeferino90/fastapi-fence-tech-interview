@@ -3,12 +3,14 @@ import logging
 
 from datetime import datetime
 
+from sqlmodel import select
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
 
 from database.db_session import get_db
-from database.models import AuditLog
+from database.models import AuditLog, User
+from helpers.auth import get_current_user
 
 logger = logging.getLogger(__name__)
 
@@ -56,6 +58,14 @@ class AuditLogMiddleware(BaseHTTPMiddleware):
         else:
             filtered_response_body_text = response_body_text
 
+        # Get User ID
+        auth_header = request.headers.get("Authorization")
+        if auth_header and auth_header.startswith("Bearer "):
+            token = auth_header.split(" ")[1]
+            username = get_current_user(token)
+            user = next(get_db()).execute(select(User).where(User.username == username)).scalar_one_or_none()
+        else:
+            user = None
 
         # Log the data to the database
         session = next(get_db())
@@ -66,6 +76,7 @@ class AuditLogMiddleware(BaseHTTPMiddleware):
             request_body=filtered_request_body_text,
             response_body=filtered_response_body_text,
             status_code=response.status_code,
+            user_id=user.id if user is not None else None,
         )
         session.add(log_entry)
         session.commit()
