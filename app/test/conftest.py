@@ -4,7 +4,8 @@ import pytest
 from sqlalchemy.orm import sessionmaker
 from sqlmodel import SQLModel, Session
 
-from app.main import get_db, app
+from app.main import app
+from database.db_session import get_db
 from database.database_creation import engine
 from database.models import Item, create_db_and_tables
 
