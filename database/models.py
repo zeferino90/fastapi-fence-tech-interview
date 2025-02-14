@@ -26,6 +26,7 @@ class AuditLog(SQLModel, table=True):
     response_body: Optional[str] = None
     status_code: int
     user_id: Optional[int] = None
+    error_message: Optional[str] = None
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
