@@ -69,13 +69,13 @@ def get_item(item_id: str, session: SessionDep) -> Item:
 
 
 @app.get("/items/")
-def get_items(session: SessionDep) -> list[Item]:
+def get_items(session: SessionDep, token: str = Security(oauth2_scheme)) -> list[Item]:
     result = session.execute(select(Item)).all()
     return result
 
 
 @app.post("/items/", status_code=201)
-def create_item(item: Item, session: SessionDep) -> Item:
+def create_item(item: Item, session: SessionDep, token: str = Security(oauth2_scheme)) -> Item:
     session.add(item)
     session.commit()
     session.refresh(item)
@@ -84,5 +84,5 @@ def create_item(item: Item, session: SessionDep) -> Item:
 
 @app.get("/audit_log/")
 def get_audit_log(session: Session = Depends(get_db)) -> list[Annotated[AuditLog, {"exclude": True}]] :
-    result = session.execute(select(AuditLog)).scalars()
+    result = session.execute(select(AuditLog)).scalars().all()
     return result
