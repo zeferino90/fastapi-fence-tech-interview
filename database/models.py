@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Optional
 
 from sqlmodel import SQLModel, Field
@@ -10,20 +11,23 @@ from database.database_creation import engine
 # representation of the model in the API.
 
 
-class Item(SQLModel):
+class Item(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str
 
-class AuditLog(SQLModel):
-    id: Optional[int] = Field(default=None, primary_key=True)
+class AuditLog(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True, exclude=True)
     table_name: str
     record_id: int
     user_id: int
     action: str # insert, update, delete
-    timestamp: str
+    timestamp: datetime = Field(default=datetime.now())
     old_value: Optional[str] = None
     new_value: Optional[str] = None
 
 
 def create_db_and_tables():
-    SQLModel.metadata.create_all(engine)
+    from sqlmodel import inspect
+    print("Before table creation:", inspect(engine).get_table_names())
+    SQLModel.metadata.create_all(bind=engine)
+    print("After table creation:", inspect(engine).get_table_names())

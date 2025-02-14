@@ -1,18 +1,19 @@
-# init my sqlalchemy database with postgresl
+import os
 
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from sqlmodel import create_engine, text, SQLModel
 
-DATABASE = 'postgresql'
-USER = 'user'
-PASSWORD = 'user'
-HOST = 'localhost'
-PORT = '5432'
-DB_NAME = 'postgres'
 
-SQLALCHEMY_DATABASE_URL = f'postgresql://{USER}:{PASSWORD}@{HOST}/{DB_NAME}'
+DATABASE_URL = (
+    "sqlite+pysqlite:///:memory:" if os.getenv("TESTING") else "postgresql+psycopg2://fastapi:fastapi@db/fastapi"
+)
 
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
+connect_args = {"check_same_thread": False} if "sqlite" in DATABASE_URL else {}
+
+engine = create_engine(DATABASE_URL, echo=True, connect_args=connect_args)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+# ✅ Function to create tables (used in tests)
+def create_db_and_tables():
+    SQLModel.metadata.create_all(bind=engine)

@@ -1,5 +1,5 @@
 # pull official base image
-FROM python:3.8.1-alpine
+FROM python:3.12.4-alpine
 
 # set work directory
 WORKDIR /src
@@ -14,7 +14,7 @@ COPY ./requirements.txt /src/requirements.txt
 # install dependencies
 RUN set -eux \
     && apk add --no-cache --virtual .build-deps build-base \
-    libressl-dev libffi-dev gcc musl-dev python3-dev \
+    libffi-dev gcc musl-dev python3-dev \
     postgresql-dev \
     && pip install --upgrade pip setuptools wheel \
     && pip install -r /src/requirements.txt \
