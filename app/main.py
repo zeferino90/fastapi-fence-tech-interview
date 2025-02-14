@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 
 from typing import Annotated
 
-from fastapi import FastAPI, Depends, Security
+from fastapi import FastAPI, Depends, Security, Query
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
 from sqlmodel import Session, select
@@ -83,6 +83,22 @@ def create_item(item: Item, session: SessionDep, token: str = Security(oauth2_sc
 
 
 @app.get("/audit_log/")
-def get_audit_log(session: Session = Depends(get_db)) -> list[Annotated[AuditLog, {"exclude": True}]] :
-    result = session.execute(select(AuditLog)).scalars().all()
+def get_audit_log(session: Session = Depends(get_db),
+                  path: str = Query(None, description="Filter by request path"),
+                  method: str = Query(None, description="Filter by HTTP method"),
+                  status_code: int = Query(None, description="Filter by response status code"),
+                  user_id: int = Query(None, description="Filter by user ID")
+                  ) -> list[Annotated[AuditLog, {"exclude": True}]] :
+    query = select(AuditLog)
+
+    if path:
+        query = query.where(AuditLog.path == path)
+    if method:
+        query = query.where(AuditLog.method == method)
+    if status_code:
+        query = query.where(AuditLog.status_code == status_code)
+    if user_id:
+        query = query.where(AuditLog.user_id == user_id)
+
+    result = session.execute(query).scalars().all()
     return result
